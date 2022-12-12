@@ -591,7 +591,7 @@ namespace BCPUtilityAzureFunction
             }
             catch (Exception e)
             {
-                logger.Error(e.Message);
+                logger.Error(e, "Could not download the BCP documents: {message}", e.Message);
             }
         }
 

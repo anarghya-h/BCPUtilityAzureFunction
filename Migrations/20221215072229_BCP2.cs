@@ -4,24 +4,22 @@
 
 namespace BCPUtilityAzureFunction.Migrations
 {
-    /// <inheritdoc />
-    public partial class BCPTest3 : Migration
+    public partial class BCP2 : Migration
     {
-        /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<string>(
-                name: "Primary_File",
+            migrationBuilder.AddColumn<bool>(
+                name: "IsFileDeleted",
                 table: "SPM_JOB_DETAILS",
-                type: "nvarchar(max)",
-                nullable: true);
+                type: "bit",
+                nullable: false,
+                defaultValue: false);
         }
 
-        /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "Primary_File",
+                name: "IsFileDeleted",
                 table: "SPM_JOB_DETAILS");
         }
     }

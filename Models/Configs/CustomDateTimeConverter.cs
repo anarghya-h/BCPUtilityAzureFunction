@@ -7,7 +7,7 @@ namespace BCPUtilityAzureFunction.Models.Configs
 {
     public class CustomDateTimeConverter : DateTimeConverterBase
     {
-        private const string Format = "yyyy-MM-dd HH:mm:ssZ";
+        private const string Format = "yyyy-MM-dd'T'HH:mm:ss.fff'Z'";
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {

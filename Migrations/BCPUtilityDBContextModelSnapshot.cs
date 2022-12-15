@@ -17,10 +17,10 @@ namespace BCPUtilityAzureFunction.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "7.0.0")
+                .HasAnnotation("ProductVersion", "6.0.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
 
             modelBuilder.Entity("BCPUtilityAzureFunction.Models.BCPDocData", b =>
                 {
@@ -28,27 +28,27 @@ namespace BCPUtilityAzureFunction.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("DocId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("DocId"), 1L, 1);
 
                     b.Property<string>("BCP_Flag")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Commissioning_System")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Commissioning_System_Description")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Config")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Discipline_Description")
+                    b.Property<string>("Document_Number")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("Document_Last_Updated_Date")
-                        .HasColumnType("datetime2");
 
                     b.Property<string>("Document_Rendition")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Document_Type")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("FileName_Path")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("File_Last_Updated_Date")
@@ -60,34 +60,46 @@ namespace BCPUtilityAzureFunction.Migrations
                     b.Property<string>("File_OBID")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("File_Rendition")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("File_UID")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<bool>("IsFileDeleted")
+                        .HasColumnType("bit");
 
-                    b.Property<string>("Plant_Code")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<bool>("IsFileUploaded")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Primary_File")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Rendition_OBID")
+                    b.Property<string>("Primary_File_Flag")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Rendition_Path")
+                    b.Property<string>("Primary_File_Path")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Rendition_File")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Rendition_File_Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Rendition_File_Path")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Rendition_OBID")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Revision")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Sub_Unit")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Sub_Unit_Description")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Title")
@@ -99,8 +111,8 @@ namespace BCPUtilityAzureFunction.Migrations
                     b.Property<string>("Unit")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Version")
-                        .HasColumnType("int");
+                    b.Property<DateTime>("Verison_Last_Updated_Date")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("DocId");
 

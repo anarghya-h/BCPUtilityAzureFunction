@@ -188,12 +188,15 @@ namespace BCPUtilityAzureFunction
         {
             logger.Information("Updating the files for the document");
             //Deleting the old files
-            storageService.DeleteBlob(/*StorageUrl +*/ "BCPDocuments/" + tdata.Name + "/" + "Design_Files_" + tdata.Name + "/" + tdata.File_Name);
-            if (tdata.Rendition_OBID != null)
-                storageService.DeleteBlob(/*StorageUrl +*/ "BCPDocuments/" + tdata.Name + "/" + "DRnd_" + tdata.Name + "/" + tdata.File_Rendition);
+            if(!tdata.IsFileDeleted)
+            {
+                storageService.DeleteBlob(/*StorageUrl +*/ "BCPDocuments/" + tdata.Document_Number + "/" + "Design_Files_" + tdata.Document_Number + "/" + tdata.File_Name);
+                if (tdata.Rendition_OBID != null)
+                    storageService.DeleteBlob(/*StorageUrl +*/ "BCPDocuments/" + tdata.Document_Number + "/" + "DRnd_" + tdata.Document_Number + "/" + tdata.Rendition_File_Name);
+            }
 
             //Downloading the updated file
-            string DirectoryName = /*StorageUrl +*/ "BCPDocuments/" + record.Name + "/" + "Design_Files_" + record.Name;
+            string DirectoryName = /*StorageUrl +*/ "BCPDocuments/" + record.Document_Number + "/" + "Design_Files_" + record.Document_Number;
             WebClient webClient = new();
 
             //Query to obtain the file details along with its URL
@@ -211,16 +214,16 @@ namespace BCPUtilityAzureFunction
 
             MemoryStream ms = new MemoryStream(webClient.DownloadData(response3.Value[0].Uri));
             var fileUrl = storageService.UploadFileToBlob(DirectoryName + "/" + record.File_Name, ms);
-            record.FileName_Path = fileUrl.ToString();
+            record.Primary_File_Path = fileUrl.ToString();
 
             //record.FileName_Path = DirectoryName + "\\" + record.Name;
 
             if (record.Rendition_OBID != null)
             {
                 //Downloading the updated rendition file
-                logger.Information("Retrieving the file details for: " + record.File_Rendition);
+                logger.Information("Retrieving the file details for: " + record.Rendition_File_Name);
 
-                DirectoryName = /*StorageUrl +*/ "BCPDocuments/" + record.Name + "/" + "DRnd_" + record.Name;
+                DirectoryName = /*StorageUrl +*/ "BCPDocuments/" + record.Document_Number + "/" + "DRnd_" + record.Document_Number;
 
                 //Query to obtain the file details along with its URL
                 OdataQueryFileUri = sdxConfig.ServerBaseUri + "Files('" + record.Rendition_OBID + "')/Intergraph.SPF.Server.API.Model.RetrieveFileUris";
@@ -236,9 +239,9 @@ namespace BCPUtilityAzureFunction
                 //webClient.DownloadFile(response3.Value[0].Uri, DirectoryName + "\\" + record.File_Rendition);
 
                 ms = new MemoryStream(webClient.DownloadData(response3.Value[0].Uri));
-                fileUrl = storageService.UploadFileToBlob(DirectoryName + "/" + record.File_Rendition, ms);
-                record.Rendition_Path = fileUrl.ToString();
-                record.Rendition_Path = DirectoryName + "/" + record.File_Rendition;
+                fileUrl = storageService.UploadFileToBlob(DirectoryName + "/" + record.Rendition_File_Name, ms);
+                record.Rendition_File_Path = fileUrl.ToString();
+                
             }
 
             //Updating the value in the database
@@ -254,7 +257,7 @@ namespace BCPUtilityAzureFunction
         {
             logger.Information("Retrieving the file details for: {file_name}", record.File_Name);
 
-            string DirectoryName = /*StorageUrl +*/ "BCPDocuments/" + record.Name + "/" + "Design_Files_" + record.Name;
+            string DirectoryName = /*StorageUrl +*/ "BCPDocuments/" + record.Document_Number + "/" + "Design_Files_" + record.Document_Number;
             WebClient webClient = new();
 
             //Query to obtain the file details along with its URL
@@ -273,15 +276,15 @@ namespace BCPUtilityAzureFunction
             //webClient.DownloadFile(response3.Value[0].Uri, DirectoryName + "\\" + record.File_Name);
             MemoryStream ms = new MemoryStream(webClient.DownloadData(response3.Value[0].Uri));
             var fileUrl = storageService.UploadFileToBlob(DirectoryName + "/" + record.File_Name, ms);
-            record.FileName_Path = fileUrl.ToString();
+            record.Primary_File_Path = fileUrl.ToString();
 
             //record.FileName_Path = DirectoryName + "\\" + record.Name;
 
             if (record.Rendition_OBID != null)
             {
-                logger.Information("Retrieving the file details for: " + record.File_Rendition);
+                logger.Information("Retrieving the file details for: " + record.Rendition_File_Name);
 
-                DirectoryName = /*StorageUrl + */"BCPDocuments/" + record.Name + "/" + "DRnd_" + record.Name;
+                DirectoryName = /*StorageUrl + */"BCPDocuments/" + record.Document_Number + "/" + "DRnd_" + record.Document_Number;
 
                 //Query to obtain the file details along with its URL
                 OdataQueryFileUri = sdxConfig.ServerBaseUri + "Files('" + record.Rendition_OBID + "')/Intergraph.SPF.Server.API.Model.RetrieveFileUris";
@@ -298,8 +301,8 @@ namespace BCPUtilityAzureFunction
                 //Downloading the file                        
                 //webClient.DownloadFile(response3.Value[0].Uri, DirectoryName + "\\" + record.File_Rendition);
                 ms = new MemoryStream(webClient.DownloadData(response3.Value[0].Uri));
-                fileUrl = storageService.UploadFileToBlob(DirectoryName + "/" + record.File_Rendition, ms);
-                record.Rendition_Path = fileUrl.ToString();
+                fileUrl = storageService.UploadFileToBlob(DirectoryName + "/" + record.Rendition_File_Name, ms);
+                record.Rendition_File_Path = fileUrl.ToString();
                 //record.Rendition_Path = DirectoryName + "\\" + record.File_Rendition;
             }
 
@@ -321,13 +324,13 @@ namespace BCPUtilityAzureFunction
             {
                 var client = new RestClient().UseNewtonsoftJson();
 
-                await authService.GetAccessTokenAsync(cancellationToken);
+                    await authService.GetAccessTokenAsync(cancellationToken);
                 tokenObtainedAt = DateTime.Now;
 
                 logger.Information("Retrieving the details of BCP documents");
                 //Query to obtain the BCP documents
-                string OdataQueryBcpDocsCount = sdxConfig.ServerBaseUri + "BCPDocuments?$filter=BCP_Flag eq 'e1CFIHOS_yesno_yes' and Primary_File eq 'e1CFIHOS_yesno_yes'&$count=true";
-                string OdataQueryBcpDocs = sdxConfig.ServerBaseUri + "BCPDocuments?$filter=BCP_Flag eq 'e1CFIHOS_yesno_yes' and Primary_File eq 'e1CFIHOS_yesno_yes'&$count=true&$top=";
+                string OdataQueryBcpDocsCount = sdxConfig.ServerBaseUri + "BCPDocuments?$filter= BCP_Flag eq 'e1CFIHOS_yesno_yes' and Primary_File_Flag eq 'e1CFIHOS_yesno_yes'&$count=true";
+                string OdataQueryBcpDocs = sdxConfig.ServerBaseUri + "BCPDocuments?$filter= BCP_Flag eq 'e1CFIHOS_yesno_yes' and Primary_File_Flag eq 'e1CFIHOS_yesno_yes'&$count=true&$top=";
                 var request = new RestRequest(OdataQueryBcpDocsCount);
 
                 //Checking if token is about to expire
@@ -409,8 +412,8 @@ namespace BCPUtilityAzureFunction
                 Row headerRow = new Row();
                 foreach (var column in records[0].GetType().GetProperties())
                 {
-                    if (column.Name == "DocId" || column.Name == "Config" || column.Name == "Id")
-                        continue;
+                    if (column.Name == "UID" || column.Name == "DocId" || column.Name == "Config" || column.Name == "Id" || column.Name == "IsFileUploaded" || column.Name == "IsFileDeleted")
+                            continue;
                     Cell cell = new Cell()
                     {
                         CellValue = new CellValue(column.Name.ToUpper()),
@@ -423,21 +426,29 @@ namespace BCPUtilityAzureFunction
 
                 foreach (var record in records)
                 {
-                    LogContext.PushProperty("DocumentNumber", record.Name);
+                    LogContext.PushProperty("DocumentNumber", record.Document_Number);
 
                     //record.File_Last_Updated_Date = record.File_Last_Updated_Date.ToUniversalTime();
                     //record.Document_Last_Updated_Date = record.Document_Last_Updated_Date.ToUniversalTime();
-                    record.FileName_Path = "";
-                    record.Rendition_Path = "";
+                    record.Primary_File_Path = "";
+                    record.Rendition_File_Path = "";
+                    record.IsFileUploaded = false;
+                    record.IsFileDeleted = false;
                     Row r = new();
 
                     var tdata = DbTableData.Find(x => x.File_UID == record.File_UID);
                     if (tdata != null)
                     {
-                        if (tdata.Revision == record.Revision && tdata.Version == record.Version && DateTime.Equals(tdata.File_Last_Updated_Date, record.File_Last_Updated_Date))
+                        if (tdata.Revision == record.Revision && DateTime.Equals(tdata.File_Last_Updated_Date, record.File_Last_Updated_Date))
                         {
-                            record.FileName_Path = tdata.FileName_Path;
-                            record.Rendition_Path = tdata.Rendition_Path;
+                            record.Primary_File_Path = tdata.Primary_File_Path;
+                            record.Rendition_File_Path = tdata.Rendition_File_Path;
+                            record.IsFileUploaded = tdata.IsFileUploaded;
+                            if(tdata.IsFileDeleted)
+                            {
+                                tdata.IsFileDeleted = record.IsFileDeleted;
+                                await DownloadFileAsync(record, client);
+                            }
                             /*if (tdata.RenditionObid == record.RenditionObid)
                                 record.RenditionPath = tdata.RenditionPath;
                             else
@@ -453,10 +464,10 @@ namespace BCPUtilityAzureFunction
                         {
                             await UpdateDocumentFilesAsync(tdata, record, client);
                         }
-                        else if (record.Version > tdata.Version)
+                        /*else if (record.Version > tdata.Version)
                         {
                             await UpdateDocumentFilesAsync(tdata, record, client);
-                        }
+                        }*/
                     }
 
                     else
@@ -479,7 +490,7 @@ namespace BCPUtilityAzureFunction
                     logger.Information("Adding the record to the index file");
                     foreach (var column in records[0].GetType().GetProperties())
                     {
-                        if (column.Name == "DocId" || column.Name == "Config" || column.Name == "Id")
+                        if (column.Name == "UID" || column.Name == "DocId" || column.Name == "Config" || column.Name == "Id" || column.Name == "IsFileUploaded" || column.Name == "IsFileDeleted" )
                             continue;
                         Cell cell = new()
                         {
@@ -492,35 +503,37 @@ namespace BCPUtilityAzureFunction
                         else
                             cell.CellValue = new CellValue(record.GetType().GetProperty(column.Name).GetValue(record).ToString());
 
-                        if (column.Name == "FileName_Path" && record.File_OBID != null)
+                        if (column.Name == "Document_Number" && record.File_OBID != null)
                         {
-                            int index = Array.FindIndex(columnsList, x => x.Name == column.Name) - 1;
+                            //int index = Array.FindIndex(columnsList, x => x.Name == column.Name) - 1;
+                            int index = 0;
                             Hyperlink hyperlink = new Hyperlink()
                             {
                                 Reference = reference[index].ToString() + (records.IndexOf(record) + 2),
                                 Id = "HYP" + i,
-                                Display = "Click here"
+                                Display = record.Document_Number
                             };
                             hyperlinks.AppendChild(hyperlink);
                             cell.CellValue = new CellValue(hyperlink.Display.Value);
                             cell.StyleIndex = 1;
-                            worksheetPart.AddHyperlinkRelationship(new Uri(record.Name + "/" + "Design_Files_" + record.Name + "/" + record.File_Name, UriKind.Relative), true, hyperlink.Id);
+                            worksheetPart.AddHyperlinkRelationship(new Uri(record.Document_Number + "/" + "Design_Files_" + record.Document_Number + "/" + record.File_Name, UriKind.Relative), true, hyperlink.Id);
                             i++;
                         }
 
-                        if (column.Name == "Rendition_Path" && record.Rendition_OBID != null)
+                        if (column.Name == "Document_Number" && record.Rendition_OBID != null)
                         {
-                            int index = Array.FindIndex(columnsList, x => x.Name == column.Name) - 1;
+                            //int index = Array.FindIndex(columnsList, x => x.Name == column.Name) - 1;
+                            int index = 0;
                             Hyperlink hyperlink = new()
                             {
                                 Reference = reference[index].ToString() + (records.IndexOf(record) + 2),
                                 Id = "HYP" + i,
-                                Display = "Click here"
+                                Display = record.Document_Number
                             };
                             hyperlinks.AppendChild(hyperlink);
                             cell.CellValue = new CellValue(hyperlink.Display.Value);
                             cell.StyleIndex = 1;
-                            worksheetPart.AddHyperlinkRelationship(new Uri(record.Name + "/" + "DRnd_" + record.Name + "/" + record.File_Rendition, UriKind.Relative), true, hyperlink.Id);
+                            worksheetPart.AddHyperlinkRelationship(new Uri(record.Document_Number + "/" + "DRnd_" + record.Document_Number + "/" + record.Rendition_File_Name, UriKind.Relative), true, hyperlink.Id);
                             i++;
                         }
                         r.AppendChild(cell);
@@ -553,27 +566,77 @@ namespace BCPUtilityAzureFunction
                 spreadsheetDocument.Close();
 
                 ms.Position = 0;
-                storageService.UploadFileToBlob("BCPDocuments/BCPDocumentExtract.xlsx", ms);
+                var fileUrl = storageService.UploadFileToBlob("BCPDocuments/BCPDocumentExtract.xlsx", ms);
+                var existingIndexFile = dBContext.SPM_JOB_DETAILS.Where(x => x.Primary_File_Path == fileUrl.ToString()).FirstOrDefault();
+                if(existingIndexFile != null)
+                {
+                    existingIndexFile.File_Last_Updated_Date = DateTime.Now;
+                    existingIndexFile.IsFileUploaded = false;
+                    dBContext.SPM_JOB_DETAILS.Update(existingIndexFile);
+                    dBContext.SaveChanges();
+                }
+                else
+                {
+                    BCPDocData bCPIndexFileData = new BCPDocData()
+                    {
+                        Primary_File_Path = fileUrl.ToString(),
+                        Title = "Index file of BCP Documents",
+                        File_Last_Updated_Date = DateTime.Now,
+                        IsFileUploaded = false
+                    };
+                    dBContext.SPM_JOB_DETAILS.Add(bCPIndexFileData);
+                    dBContext.SaveChanges();
+
+                }                
+                
                 logger.Information("Index file created successfully");
 
                 logger.Information("Deleting old document files");
                 //tableData = tableClient.Query<CsvData>().ToList();
                 DbTableData = dBContext.SPM_JOB_DETAILS.ToList();
-                foreach (var tdata in DbTableData)
+
+                List<BCPDocData> oldRecords = DbTableData.Where(x => !records.Any(y => x.File_UID == y.File_UID) && !x.IsFileDeleted).ToList();
+                foreach (var record in oldRecords)
+                {
+                    if (record.Title == "Index file of BCP Documents")
+                        continue;
+                    
+                    var path = records.Find(x => x.Primary_File_Path == record.Primary_File_Path);
+                    if (path == null)
+                    {
+                        if (storageService.CheckExists("BCPDocuments/" + record.Document_Number + "/" + "Design_Files_" + record.Document_Number + "/" + record.File_Name))
+                        {
+                            LogContext.PushProperty("DocumentNumber", record.Document_Number);
+                            logger.Information("Deleting file: {file_name}", record.File_Name);
+                            storageService.DeleteBlob(/*StorageUrl +*/ "BCPDocuments/" + record.Document_Number + "/" + "Design_Files_" + record.Document_Number + "/" + record.File_Name);
+                            if (storageService.CheckExists(record.Document_Number + "/" + "DRnd_" + record.Document_Number + "/" + record.Rendition_File_Name))
+                            {
+                                logger.Information("Deleting file: {file_name}", record.File_Name);
+                                storageService.DeleteBlob(/*StorageUrl +*/ "BCPDocuments/" + record.Document_Number + "/" + "DRnd_" + record.Document_Number + "/" + record.Rendition_File_Name);
+                            }
+                                
+                        }
+                    }
+                    record.IsFileDeleted = true;
+                    dBContext.SPM_JOB_DETAILS.Update(record);
+                    dBContext.SaveChanges();
+                }
+
+                /*foreach (var tdata in DbTableData)
                 {
                     var record = records.Find(x => x.File_UID == tdata.File_UID);
-                    if (record == null)
+                    if (record == null && tdata.Title != "Index file of BCP Documents")
                     {
-                        var path = records.Find(x => x.FileName_Path == tdata.FileName_Path);
+                        var path = records.Find(x => x.Primary_File_Path == tdata.Primary_File_Path);
                         if (path == null)
                         {
-                            if (storageService.CheckExists("BCPDocuments/" + tdata.Name + "/" + "Design_Files_" + tdata.Name + "/" + tdata.File_Name))
+                            if (storageService.CheckExists("BCPDocuments/" + tdata.Document_Number + "/" + "Design_Files_" + tdata.Document_Number + "/" + tdata.File_Name))
                             {
-                                LogContext.PushProperty("DocumentNumber", tdata.Name);
+                                LogContext.PushProperty("DocumentNumber", tdata.Document_Number);
                                 logger.Information("Deleting file: {file_name}", tdata.File_Name);
-                                storageService.DeleteBlob(/*StorageUrl +*/ "BCPDocuments/" + tdata.Name + "/" + "Design_Files_" + tdata.Name + "/" + tdata.File_Name);
-                                if (storageService.CheckExists(tdata.Name + "/" + "DRnd_" + tdata.Name + "/" + tdata.File_Rendition))
-                                    storageService.DeleteBlob(/*StorageUrl +*/ "BCPDocuments/" + tdata.Name + "/" + "DRnd_" + tdata.Name + "/" + tdata.File_Rendition);
+                                storageService.DeleteBlob(*//*StorageUrl +*//* "BCPDocuments/" + tdata.Document_Number + "/" + "Design_Files_" + tdata.Document_Number + "/" + tdata.File_Name);
+                                if (storageService.CheckExists(tdata.Document_Number + "/" + "DRnd_" + tdata.Document_Number + "/" + tdata.Rendition_File_Name))
+                                    storageService.DeleteBlob(*//*StorageUrl +*//* "BCPDocuments/" + tdata.Document_Number + "/" + "DRnd_" + tdata.Document_Number + "/" + tdata.Rendition_File_Name);
 
                             }
                         }
@@ -584,7 +647,8 @@ namespace BCPUtilityAzureFunction
 
 
                     }
-                }
+                }*/
+
                 //Success
                 logger.Information("File(s) downloaded successfully");
 

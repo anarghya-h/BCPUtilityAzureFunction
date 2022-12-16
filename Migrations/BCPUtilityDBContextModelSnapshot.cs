@@ -116,7 +116,7 @@ namespace BCPUtilityAzureFunction.Migrations
 
                     b.HasKey("DocId");
 
-                    b.ToTable("SPM_JOB_DETAILS", (string)null);
+                    b.ToTable("SPM_JOB_DETAILS");
                 });
 #pragma warning restore 612, 618
         }

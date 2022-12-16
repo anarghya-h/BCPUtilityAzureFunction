@@ -190,13 +190,13 @@ namespace BCPUtilityAzureFunction
             //Deleting the old files
             if(!tdata.IsFileDeleted)
             {
-                storageService.DeleteBlob(/*StorageUrl +*/ "BCPDocuments/" + tdata.Document_Number + "/" + "Design_Files_" + tdata.Document_Number + "/" + tdata.File_Name);
+                storageService.DeleteBlob(/*StorageUrl +*/ "BCPDocuments/" + tdata.UID + "/" + tdata.File_Name);
                 if (tdata.Rendition_OBID != null)
-                    storageService.DeleteBlob(/*StorageUrl +*/ "BCPDocuments/" + tdata.Document_Number + "/" + "DRnd_" + tdata.Document_Number + "/" + tdata.Rendition_File_Name);
+                    storageService.DeleteBlob(/*StorageUrl +*/ "BCPDocuments/" + tdata.UID + "/" + tdata.Rendition_File_Name);
             }
 
             //Downloading the updated file
-            string DirectoryName = /*StorageUrl +*/ "BCPDocuments/" + record.Document_Number + "/" + "Design_Files_" + record.Document_Number;
+            string DirectoryName = /*StorageUrl +*/ "BCPDocuments/" + record.UID;
             WebClient webClient = new();
 
             //Query to obtain the file details along with its URL
@@ -223,7 +223,7 @@ namespace BCPUtilityAzureFunction
                 //Downloading the updated rendition file
                 logger.Information("Retrieving the file details for: " + record.Rendition_File_Name);
 
-                DirectoryName = /*StorageUrl +*/ "BCPDocuments/" + record.Document_Number + "/" + "DRnd_" + record.Document_Number;
+                //DirectoryName = /*StorageUrl +*/ "BCPDocuments/" + record.UID;
 
                 //Query to obtain the file details along with its URL
                 OdataQueryFileUri = sdxConfig.ServerBaseUri + "Files('" + record.Rendition_OBID + "')/Intergraph.SPF.Server.API.Model.RetrieveFileUris";
@@ -257,7 +257,7 @@ namespace BCPUtilityAzureFunction
         {
             logger.Information("Retrieving the file details for: {file_name}", record.File_Name);
 
-            string DirectoryName = /*StorageUrl +*/ "BCPDocuments/" + record.Document_Number + "/" + "Design_Files_" + record.Document_Number;
+            string DirectoryName = /*StorageUrl +*/ "BCPDocuments/" + record.UID;
             WebClient webClient = new();
 
             //Query to obtain the file details along with its URL
@@ -284,7 +284,7 @@ namespace BCPUtilityAzureFunction
             {
                 logger.Information("Retrieving the file details for: " + record.Rendition_File_Name);
 
-                DirectoryName = /*StorageUrl + */"BCPDocuments/" + record.Document_Number + "/" + "DRnd_" + record.Document_Number;
+                //DirectoryName = /*StorageUrl + */"BCPDocuments/" + record.UID;
 
                 //Query to obtain the file details along with its URL
                 OdataQueryFileUri = sdxConfig.ServerBaseUri + "Files('" + record.Rendition_OBID + "')/Intergraph.SPF.Server.API.Model.RetrieveFileUris";
@@ -516,24 +516,24 @@ namespace BCPUtilityAzureFunction
                             hyperlinks.AppendChild(hyperlink);
                             cell.CellValue = new CellValue(hyperlink.Display.Value);
                             cell.StyleIndex = 1;
-                            worksheetPart.AddHyperlinkRelationship(new Uri(record.Document_Number + "/" + "Design_Files_" + record.Document_Number + "/" + record.File_Name, UriKind.Relative), true, hyperlink.Id);
+                            worksheetPart.AddHyperlinkRelationship(new Uri(record.UID + "/" + record.File_Name, UriKind.Relative), true, hyperlink.Id);
                             i++;
                         }
 
-                        if (column.Name == "Document_Number" && record.Rendition_OBID != null)
+                        if (column.Name == "Rendition_File_Path" && record.Rendition_OBID != null)
                         {
                             //int index = Array.FindIndex(columnsList, x => x.Name == column.Name) - 1;
-                            int index = 0;
+                            int index = 15;
                             Hyperlink hyperlink = new()
                             {
                                 Reference = reference[index].ToString() + (records.IndexOf(record) + 2),
                                 Id = "HYP" + i,
-                                Display = record.Document_Number
+                                Display = "Click Here"
                             };
                             hyperlinks.AppendChild(hyperlink);
                             cell.CellValue = new CellValue(hyperlink.Display.Value);
                             cell.StyleIndex = 1;
-                            worksheetPart.AddHyperlinkRelationship(new Uri(record.Document_Number + "/" + "DRnd_" + record.Document_Number + "/" + record.Rendition_File_Name, UriKind.Relative), true, hyperlink.Id);
+                            worksheetPart.AddHyperlinkRelationship(new Uri(record.UID + "/" + record.Rendition_File_Name, UriKind.Relative), true, hyperlink.Id);
                             i++;
                         }
                         r.AppendChild(cell);
@@ -566,7 +566,7 @@ namespace BCPUtilityAzureFunction
                 spreadsheetDocument.Close();
 
                 ms.Position = 0;
-                var fileUrl = storageService.UploadFileToBlob("BCPDocuments/BCPDocumentExtract.xlsx", ms);
+                var fileUrl = storageService.UploadFileToBlob("BCPDocuments/SPM BCP DOCUMENTS EXTRACT.xlsx", ms);
                 var existingIndexFile = dBContext.SPM_JOB_DETAILS.Where(x => x.Primary_File_Path == fileUrl.ToString()).FirstOrDefault();
                 if(existingIndexFile != null)
                 {
@@ -580,6 +580,7 @@ namespace BCPUtilityAzureFunction
                     BCPDocData bCPIndexFileData = new BCPDocData()
                     {
                         Primary_File_Path = fileUrl.ToString(),
+                        Document_Number = "SPM BCP DOCUMENTS EXTRACT.xlsx",
                         Title = "Index file of BCP Documents",
                         File_Last_Updated_Date = DateTime.Now,
                         IsFileUploaded = false

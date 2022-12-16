@@ -1,0 +1,36 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet",
+    "Schedule": "0 */5 * * * *",
+    "APPINSIGHTS_INSTRUMENTATIONKEY": "1a684a4a-63b5-47e7-ac79-1101e047a60b"
+  },
+  "StorageAccountConfig": {
+    "ConnectionString": "DefaultEndpointsProtocol=https;AccountName=shl31monaprodclienttext;AccountKey=pDjOPs7uLjqu1j5Ly9wwfl/ku1tNlW9X63I5hZd8nqT7dZhUV/3kSUCXK3JVG20fAiO+ufIQlpBeWSuDdR8u0Q==;EndpointSuffix=core.windows.net",
+    "TableName": "BCPDocumentExtractLogs",
+    "propertyColumns": [ "DocumentNumber" ],
+    "Container": "bcpdocs"
+  },
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=tcp:fhsc-sql-db-svr.database.windows.net,1433;Initial Catalog=BCP-DB;Persist Security Info=False;User ID=sqladmin;Password=Fhsc#2022;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
+  },
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft": "Warning",
+      "Microsoft.Hosting.Lifetime": "Information"
+    }
+  },
+  "SDxConfig": {
+    "ServerBaseUri": "https://shg36-sdg.prod.smartplantcloud.net/monadevServer/api/v2/SDA/",
+    "ServerResourceID": "88F6AA56-48F6-4009-920D-419B46E263EE ingr.api",
+    "AuthServerAuthority": "https://auth.intergraphsmartcloud.com/oauth2/aus68q0x2aPDrbZ5f0i7",
+    "AuthClientId": "0oa6mv5p05QNZSTZW0i7",
+    "AuthClientSecret": "-PHV5CPR_oRDF0_Af54fRrxza9NSuvIH59vct-rp",
+    "OnBehalfOfUser": "SHG36P.AHH"
+  },
+  "WorkerConfig": {
+    "ScheduleExpression": "0 */5 * * * *"
+  }  
+}

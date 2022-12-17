@@ -19,7 +19,8 @@ namespace BCPUtilityAzureFunction.Models
         public string Commissioning_System { get; set; }
         public string Commissioning_System_Description { get; set; }
         public string Document_Type { get; set; }
-        public DateTime Verison_Last_Updated_Date { get; set; }
+        //[JsonConverter(typeof(CustomDateTimeConverter))]
+        public DateTime Version_Last_Updated_Date { get; set; }
         public string Primary_File { get; set; }
         public string Document_Rendition { get; set; }
         public string Rendition_File_Name { get; set; }

@@ -32,5 +32,5 @@
   },
   "WorkerConfig": {
     "ScheduleExpression": "0 */5 * * * *"
-  }  
+  }
 }

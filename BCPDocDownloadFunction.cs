@@ -21,6 +21,7 @@ using System.Threading;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Serilog.Context;
+using Newtonsoft.Json;
 
 namespace BCPUtilityAzureFunction
 {
@@ -324,7 +325,7 @@ namespace BCPUtilityAzureFunction
             {
                 var client = new RestClient().UseNewtonsoftJson();
 
-                    await authService.GetAccessTokenAsync(cancellationToken);
+                await authService.GetAccessTokenAsync(cancellationToken);
                 tokenObtainedAt = DateTime.Now;
 
                 logger.Information("Retrieving the details of BCP documents");
@@ -373,7 +374,7 @@ namespace BCPUtilityAzureFunction
 
                 //Creating the index file
                 MemoryStream ms = new();
-                spreadsheetDocument = SpreadsheetDocument.Create(ms, SpreadsheetDocumentType.Workbook);
+                spreadsheetDocument = SpreadsheetDocument.Create(ms, SpreadsheetDocumentType.MacroEnabledWorkbook);
 
                 WorkbookPart workbookPart = spreadsheetDocument.AddWorkbookPart();
 
@@ -566,7 +567,7 @@ namespace BCPUtilityAzureFunction
                 spreadsheetDocument.Close();
 
                 ms.Position = 0;
-                var fileUrl = storageService.UploadFileToBlob("BCPDocuments/SPM BCP DOCUMENTS EXTRACT.xlsx", ms);
+                var fileUrl = storageService.UploadFileToBlob("BCPDocuments/SPM BCP DOCUMENTS EXTRACT.xlsm", ms);
                 var existingIndexFile = dBContext.SPM_JOB_DETAILS.Where(x => x.Primary_File_Path == fileUrl.ToString()).FirstOrDefault();
                 if(existingIndexFile != null)
                 {
@@ -580,7 +581,7 @@ namespace BCPUtilityAzureFunction
                     BCPDocData bCPIndexFileData = new BCPDocData()
                     {
                         Primary_File_Path = fileUrl.ToString(),
-                        Document_Number = "SPM BCP DOCUMENTS EXTRACT.xlsx",
+                        Document_Number = "SPM BCP DOCUMENTS EXTRACT.xlsm",
                         Title = "Index file of BCP Documents",
                         File_Last_Updated_Date = DateTime.Now,
                         IsFileUploaded = false
@@ -605,15 +606,15 @@ namespace BCPUtilityAzureFunction
                     var path = records.Find(x => x.Primary_File_Path == record.Primary_File_Path);
                     if (path == null)
                     {
-                        if (storageService.CheckExists("BCPDocuments/" + record.Document_Number + "/" + "Design_Files_" + record.Document_Number + "/" + record.File_Name))
+                        if (storageService.CheckExists("BCPDocuments/" + record.UID + "/" + record.File_Name))
                         {
                             LogContext.PushProperty("DocumentNumber", record.Document_Number);
                             logger.Information("Deleting file: {file_name}", record.File_Name);
-                            storageService.DeleteBlob(/*StorageUrl +*/ "BCPDocuments/" + record.Document_Number + "/" + "Design_Files_" + record.Document_Number + "/" + record.File_Name);
-                            if (storageService.CheckExists(record.Document_Number + "/" + "DRnd_" + record.Document_Number + "/" + record.Rendition_File_Name))
+                            storageService.DeleteBlob(/*StorageUrl +*/ "BCPDocuments/" + record.UID + "/" + record.File_Name);
+                            if (storageService.CheckExists(record.UID + "/" + record.Rendition_File_Name))
                             {
                                 logger.Information("Deleting file: {file_name}", record.File_Name);
-                                storageService.DeleteBlob(/*StorageUrl +*/ "BCPDocuments/" + record.Document_Number + "/" + "DRnd_" + record.Document_Number + "/" + record.Rendition_File_Name);
+                                storageService.DeleteBlob(/*StorageUrl +*/ "BCPDocuments/" + record.UID + "/" + record.Rendition_File_Name);
                             }
                                 
                         }

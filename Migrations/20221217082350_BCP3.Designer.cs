@@ -4,6 +4,7 @@ using BCPUtilityAzureFunction.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BCPUtilityAzureFunction.Migrations
 {
     [DbContext(typeof(BCPUtilityDBContext))]
-    partial class BCPUtilityDBContextModelSnapshot : ModelSnapshot
+    [Migration("20221217082350_BCP3")]
+    partial class BCP3
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

@@ -582,6 +582,7 @@ namespace BCPUtilityAzureFunction
                     {
                         Primary_File_Path = fileUrl.ToString(),
                         Document_Number = "SPM BCP DOCUMENTS EXTRACT.xlsm",
+                        File_Name = "SPM BCP DOCUMENTS EXTRACT.xlsm",
                         Title = "Index file of BCP Documents",
                         File_Last_Updated_Date = DateTime.Now,
                         IsFileUploaded = false

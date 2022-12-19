@@ -222,7 +222,7 @@ namespace BCPUtilityAzureFunction
             if (record.Rendition_OBID != null)
             {
                 //Downloading the updated rendition file
-                logger.Information("Retrieving the file details for: " + record.Rendition_File_Name);
+                logger.Information("Retrieving the file details for: {filename}", record.Rendition_File_Name);
 
                 //DirectoryName = /*StorageUrl +*/ "BCPDocuments/" + record.UID;
 
@@ -283,7 +283,7 @@ namespace BCPUtilityAzureFunction
 
             if (record.Rendition_OBID != null)
             {
-                logger.Information("Retrieving the file details for: " + record.Rendition_File_Name);
+                logger.Information("Retrieving the file details for: {filename}", record.Rendition_File_Name);
 
                 //DirectoryName = /*StorageUrl + */"BCPDocuments/" + record.UID;
 
@@ -582,6 +582,7 @@ namespace BCPUtilityAzureFunction
                     {
                         Primary_File_Path = fileUrl.ToString(),
                         Document_Number = "SPM BCP DOCUMENTS EXTRACT.xlsm",
+                        File_Name = "SPM BCP DOCUMENTS EXTRACT.xlsm",
                         Title = "Index file of BCP Documents",
                         File_Last_Updated_Date = DateTime.Now,
                         IsFileUploaded = false
@@ -611,7 +612,7 @@ namespace BCPUtilityAzureFunction
                             LogContext.PushProperty("DocumentNumber", record.Document_Number);
                             logger.Information("Deleting file: {file_name}", record.File_Name);
                             storageService.DeleteBlob(/*StorageUrl +*/ "BCPDocuments/" + record.UID + "/" + record.File_Name);
-                            if (storageService.CheckExists(record.UID + "/" + record.Rendition_File_Name))
+                            if (storageService.CheckExists("BCPDocuments/" + record.UID + "/" + record.Rendition_File_Name))
                             {
                                 logger.Information("Deleting file: {file_name}", record.File_Name);
                                 storageService.DeleteBlob(/*StorageUrl +*/ "BCPDocuments/" + record.UID + "/" + record.Rendition_File_Name);

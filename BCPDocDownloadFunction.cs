@@ -448,6 +448,7 @@ namespace BCPUtilityAzureFunction
                             if(tdata.IsFileDeleted)
                             {
                                 tdata.IsFileDeleted = record.IsFileDeleted;
+                                tdata.BCP_Flag = record.BCP_Flag;
                                 await DownloadFileAsync(record, client);
                             }
                             /*if (tdata.RenditionObid == record.RenditionObid)
@@ -621,6 +622,7 @@ namespace BCPUtilityAzureFunction
                         }
                     }
                     record.IsFileDeleted = true;
+                    record.BCP_Flag = "no";
                     dBContext.SPM_JOB_DETAILS.Update(record);
                     dBContext.SaveChanges();
                 }

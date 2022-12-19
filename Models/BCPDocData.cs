@@ -39,6 +39,6 @@ namespace BCPUtilityAzureFunction.Models
         public string Id { get; set;}
         public bool IsFileUploaded { get; set; }
         public bool IsFileDeleted { get; set;}
-        
+        public bool IsFileDeletedInSP { get; set; }
     }
 }

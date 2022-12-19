@@ -413,7 +413,7 @@ namespace BCPUtilityAzureFunction
                 Row headerRow = new Row();
                 foreach (var column in records[0].GetType().GetProperties())
                 {
-                    if (column.Name == "UID" || column.Name == "DocId" || column.Name == "Config" || column.Name == "Id" || column.Name == "IsFileUploaded" || column.Name == "IsFileDeleted")
+                    if (column.Name == "UID" || column.Name == "DocId" || column.Name == "Config" || column.Name == "Id" || column.Name == "IsFileUploaded" || column.Name == "IsFileDeleted" || column.Name == "IsFileDeletedInSP")
                             continue;
                     Cell cell = new Cell()
                     {
@@ -448,6 +448,7 @@ namespace BCPUtilityAzureFunction
                             if(tdata.IsFileDeleted)
                             {
                                 tdata.IsFileDeleted = record.IsFileDeleted;
+                                tdata.BCP_Flag = record.BCP_Flag;
                                 await DownloadFileAsync(record, client);
                             }
                             /*if (tdata.RenditionObid == record.RenditionObid)
@@ -491,7 +492,7 @@ namespace BCPUtilityAzureFunction
                     logger.Information("Adding the record to the index file");
                     foreach (var column in records[0].GetType().GetProperties())
                     {
-                        if (column.Name == "UID" || column.Name == "DocId" || column.Name == "Config" || column.Name == "Id" || column.Name == "IsFileUploaded" || column.Name == "IsFileDeleted" )
+                        if (column.Name == "UID" || column.Name == "DocId" || column.Name == "Config" || column.Name == "Id" || column.Name == "IsFileUploaded" || column.Name == "IsFileDeleted" || column.Name == "IsFileDeletedInSP")
                             continue;
                         Cell cell = new()
                         {
@@ -621,6 +622,7 @@ namespace BCPUtilityAzureFunction
                         }
                     }
                     record.IsFileDeleted = true;
+                    record.BCP_Flag = "no";
                     dBContext.SPM_JOB_DETAILS.Update(record);
                     dBContext.SaveChanges();
                 }

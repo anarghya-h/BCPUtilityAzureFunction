@@ -11,8 +11,9 @@ namespace BCPUtilityAzureFunction.Models.Configs
         public string WebClientBaseUri { get; set; }
         public string ServerResourceID { get; set; }
         public string AuthServerAuthority { get; set; }
-        public string AuthClientId { get; set; }
-        public string AuthClientSecret { get; set; }
+        //public string AuthClientId { get; set; }
+        //public string AuthClientSecret { get; set; }
         public string OnBehalfOfUser { get; set; }
+        public string AzureKeyVaultName { get; set; }
     }
 }

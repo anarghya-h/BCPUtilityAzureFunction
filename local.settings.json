@@ -26,9 +26,8 @@
     "ServerBaseUri": "https://shg36-sdg.prod.smartplantcloud.net/monadevServer/api/v2/SDA/",
     "ServerResourceID": "88F6AA56-48F6-4009-920D-419B46E263EE ingr.api",
     "AuthServerAuthority": "https://auth.intergraphsmartcloud.com/oauth2/aus68q0x2aPDrbZ5f0i7",
-    "AuthClientId": "0oa6mv5p05QNZSTZW0i7",
-    "AuthClientSecret": "-PHV5CPR_oRDF0_Af54fRrxza9NSuvIH59vct-rp",
-    "OnBehalfOfUser": "SHG36P.AHH"
+    "OnBehalfOfUser": "SHG36P.AHH",
+    "AzureKeyVaultName": "SDX-MONACA-DEV36"
   },
   "WorkerConfig": {
     "ScheduleExpression": "0 */5 * * * *"

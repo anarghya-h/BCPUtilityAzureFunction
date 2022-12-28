@@ -22,6 +22,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Serilog.Context;
 using Newtonsoft.Json;
+using Microsoft.Extensions.Configuration;
 
 namespace BCPUtilityAzureFunction
 {
@@ -35,19 +36,18 @@ namespace BCPUtilityAzureFunction
         readonly BlobStorageService storageService;
         readonly ILogger logger;
         DateTime tokenObtainedAt;
-        WorkerConfig workerConfig;
+        //WorkerConfig workerConfig;
         #endregion
 
         #region Constructor
-        public BCPDocDownloadFunction(SdxConfig config, StorageAccountConfig storageConfig, BCPUtilityDBContext dBContext, ILogger log, WorkerConfig wconfig)
+        public BCPDocDownloadFunction(SdxConfig sdxconfig, StorageAccountConfig storageConfig, BCPUtilityDBContext dBContext, ILogger log, IConfiguration config)
         {
-            sdxConfig = config;
+            sdxConfig = sdxconfig;
             logger = log;
-            authService = new AuthenticationService(sdxConfig, logger);
+            authService = new AuthenticationService(sdxConfig, logger, config);
             this.storageConfig = storageConfig;
             this.dBContext = dBContext;
             storageService = new BlobStorageService(storageConfig.ConnectionString, storageConfig.Container);
-            workerConfig = wconfig;
         }
         #endregion
 

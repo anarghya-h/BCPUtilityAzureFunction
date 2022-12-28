@@ -8,6 +8,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Serilog;
+using Microsoft.Extensions.Configuration;
 
 namespace BCPUtilityAzureFunction.Services
 {
@@ -15,6 +16,7 @@ namespace BCPUtilityAzureFunction.Services
     {
         #region Private members variables
         private readonly SdxConfig sdxConfig;
+        private readonly IConfiguration config;
         private readonly ILogger logger;
         private Timer refreshTokenTimer;
         #endregion
@@ -24,22 +26,23 @@ namespace BCPUtilityAzureFunction.Services
         #endregion
 
         #region Constructors
-        public AuthenticationService(SdxConfig sdxConfig, ILogger logger)
+        public AuthenticationService(SdxConfig sdxConfig, ILogger logger, IConfiguration config)
         {
             this.logger = logger;
             this.sdxConfig = sdxConfig;
+            this.config = config;
         }
         #endregion
 
         #region Public Methods
         public Task StartAsync(CancellationToken cancellationToken)
         {
-            tokenResponse = GetOAuthTokenClientCredentialsFlow(sdxConfig.AuthServerAuthority, sdxConfig.AuthClientId, sdxConfig.AuthClientSecret, sdxConfig.ServerResourceID);
+            tokenResponse = GetOAuthTokenClientCredentialsFlow(sdxConfig.AuthServerAuthority, sdxConfig.ServerResourceID);
             return Task.CompletedTask;
         }
         public Task GetAccessTokenAsync(CancellationToken cancellationToken)
         {
-            tokenResponse = GetOAuthTokenClientCredentialsFlow(sdxConfig.AuthServerAuthority, sdxConfig.AuthClientId, sdxConfig.AuthClientSecret, sdxConfig.ServerResourceID);
+            tokenResponse = GetOAuthTokenClientCredentialsFlow(sdxConfig.AuthServerAuthority, sdxConfig.ServerResourceID);
             return Task.CompletedTask;
         }
 
@@ -61,7 +64,7 @@ namespace BCPUtilityAzureFunction.Services
         #endregion
 
         #region Private Methods
-        private TokenResponse GetOAuthTokenClientCredentialsFlow(string authServerAuthority, string authClientId, string authClientSecret, string serverResourceID)
+        private TokenResponse GetOAuthTokenClientCredentialsFlow(string authServerAuthority, string serverResourceID)
         {
             var client = new HttpClient();
 
@@ -82,8 +85,8 @@ namespace BCPUtilityAzureFunction.Services
             var response = client.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
             {
                 Address = discoveryDocument.TokenEndpoint,
-                ClientId = authClientId,
-                ClientSecret = authClientSecret,
+                ClientId = config["SDxConfig:AuthClientId"],
+                ClientSecret = config["SDxConfig:AuthClientSecret"],
                 Scope = serverResourceID,
                 Parameters = parameters
             }).Result;
@@ -110,7 +113,7 @@ namespace BCPUtilityAzureFunction.Services
             this.refreshTokenTimer = new Timer(_ =>
             {
                 logger.Information("Token expiring obtaining new one...");
-                this.tokenResponse = GetOAuthTokenClientCredentialsFlow(authServerAuthority, authClientId, authClientSecret, serverResourceID);
+                this.tokenResponse = GetOAuthTokenClientCredentialsFlow(authServerAuthority,serverResourceID);
             }
                 , null, (int)TimeSpan.FromSeconds(timeTillExpires - 30).TotalMilliseconds, Timeout.Infinite);
             logger.Information("Refresh token timer initialized successfully");

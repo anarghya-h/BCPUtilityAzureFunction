@@ -27,7 +27,7 @@
     "ServerResourceID": "88F6AA56-48F6-4009-920D-419B46E263EE ingr.api",
     "AuthServerAuthority": "https://auth.intergraphsmartcloud.com/oauth2/aus68q0x2aPDrbZ5f0i7",
     "OnBehalfOfUser": "SHG36P.AHH",
-    "AzureKeyVaultName": "SDX-MONACA-DEV36"
+    "AzureKeyVaultName": "SDX-MONACA-36DEV"
   },
   "WorkerConfig": {
     "ScheduleExpression": "0 */5 * * * *"
